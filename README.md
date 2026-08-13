@@ -6,16 +6,26 @@
 хранимых процедур.
 
 ## Запуск
-
+### Вариант 1 — Docker
 Для запуска через Docker:
 
 ```bash
+
 docker compose up
 
+```text
+
+### Вариант 2 — SQL Server Express
+Если Docker не установлен:
+
+Установить SQL Server Express.
+Запустить SQL Server.
+Выполнить Database/init.sql в SQL Server Management Studio.
+Проверить connection string в appsettings.json и при необходимости
+изменить имя SQL Server instance.
+Запустить приложение.
 
 ## Структура проекта
-
-```text
 Books.Mvc/
 ├── Controllers/
 │   └── BooksController.cs
