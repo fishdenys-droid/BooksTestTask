@@ -1,0 +1,71 @@
+﻿@model Books.Mvc.Models.Book
+
+@{
+    ViewData["Title"] = "Добавить книгу";
+}
+
+<h1>Добавить книгу</h1>
+
+<form asp-action="Create" method="post">
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">
+            Название
+        </label>
+
+        <input asp-for="Title"
+               class="form-control" />
+
+        <span asp-validation-for="Title"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Author" class="form-label">
+            Автор
+        </label>
+
+        <input asp-for="Author"
+               class="form-control" />
+
+        <span asp-validation-for="Author"
+              class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="YearPublished" class="form-label">
+            Год издания
+        </label>
+
+        <input asp-for="YearPublished"
+               type="number"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Contents" class="form-label">
+            Оглавление XML
+        </label>
+
+        <textarea asp-for="Contents"
+                  class="form-control"
+                  rows="10"></textarea>
+
+        <span asp-validation-for="Contents"
+              class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Сохранить
+    </button>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Отмена
+    </a>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

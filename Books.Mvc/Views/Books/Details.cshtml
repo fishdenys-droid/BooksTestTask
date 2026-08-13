@@ -1,0 +1,39 @@
+﻿@model Books.Mvc.ViewModels.BookDetailsViewModel
+
+@{
+    ViewData["Title"] = "Книга";
+}
+
+<h1>@Model.Title</h1>
+
+<div>
+    <strong>Автор:</strong>
+    @Model.Author
+</div>
+
+<div>
+    <strong>Год:</strong>
+    @Model.YearPublished
+</div>
+
+<h3>Оглавление</h3>
+
+@if (Model.Chapters.Count == 0)
+{
+    <p>Оглавление отсутствует.</p>
+}
+else
+{
+    <ol>
+        @foreach (var chapter in Model.Chapters)
+        {
+            <li>
+                @chapter.Title
+            </li>
+        }
+    </ol>
+}
+
+<a asp-action="Index" class="btn btn-secondary">
+    Назад
+</a>
