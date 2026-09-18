@@ -28,14 +28,7 @@ namespace Books.Mvc.Controllers
             return View(books);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var books = await _repository.GetAllAsync();
-
-            return Ok(books);
-        }
-
+        
         public async Task<IActionResult> Details(int id)
         {
             var book = await _service.GetDetailsAsync(id);
@@ -77,6 +70,7 @@ namespace Books.Mvc.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

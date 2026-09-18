@@ -10,13 +10,14 @@ function App() {
     useEffect(() => {
         console.log('EFFECT')
 
-        fetch('https://localhost:7218/Books/GetAll')
+        fetch('https://localhost:7218/api/books')
             .then(response => response.json())
             .then(data => {
                 console.log('API DATA:', data)
                 setBooks(data)
             })
     }, [])
+
 
     const [formData, setFormData] = useState({
         title: '',
@@ -36,42 +37,78 @@ function App() {
         })
     }
 
-    function addBook() {
-        setBooks([
-            ...books,
-            {
-                id: Date.now(),
-                title: formData.title,
-                author: formData.author,
-                yearPublished: null,
-                contents: null,
+    const addBook = async () => {
+        const response = await fetch('https://localhost:7218/api/books', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-        ])
-
-        setFormData({
-            title: '',
-            author: '',
+            body: JSON.stringify({
+                title: formData.title,
+                author: formData.author
+            })
         })
+
+        const createdBook = await response.json()
+
+        setBooks([...books, createdBook])
+        
     }
 
-    function editBook(book: Book) {
-        setEditingBookId(book.id)
-
-        setFormData({
-            title: book.title,
-            author: book.author,
+    const deleteBook = async (id: number) => {
+        const response = await fetch(`https://localhost:7218/api/books/${id}`, {
+            method: 'DELETE'
         })
+
+        if (!response.ok) {
+            console.error('Ошибка удаления')
+            return
+        }
+
+        setBooks(books.filter(book => book.id !== id))
     }
 
-    function saveBook() {
-        setBooks(
-            books.map((book) =>
-                book.id === editingBookId
-                    ? {
-                        ...book,
-                        title: formData.title,
-                        author: formData.author,
-                    }
+    const saveBook = async () => {
+        if (editingBookId === null) {
+            return
+        }
+
+        const currentBook = books.find(
+            book => book.id === editingBookId
+        )
+
+        if (!currentBook) {
+            return
+        }
+
+        const updatedBook = {
+            ...currentBook,
+            title: formData.title,
+            author: formData.author,
+        }
+
+        const response = await fetch(
+            `https://localhost:7218/api/books/${editingBookId}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedBook),
+            }
+        )
+
+        if (!response.ok) {
+            console.error('Ошибка обновления')
+            return
+        }
+
+        const savedBook = await response.json()
+
+        setBooks(prevBooks =>
+            prevBooks.map(book =>
+                book.id === savedBook.id
+                    ? savedBook
                     : book
             )
         )
@@ -84,11 +121,19 @@ function App() {
         })
     }
 
-    function deleteBook(id: number) {
-        setBooks(
-            books.filter((book) => book.id !== id)
-        )
+
+    function editBook(book: Book) {
+        setEditingBookId(book.id)
+
+        setFormData({
+            title: book.title,
+            author: book.author,
+        })
     }
+
+    
+
+    
 
     function cancelEdit() {
         setEditingBookId(null)
