@@ -5,16 +5,33 @@ import type { Book } from './types'
 
 function App() {
     const [books, setBooks] = useState<Book[]>([])
+    const [loading, setLoading] = useState(true)
+    const [adding, setAdding] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     // GET — загружаем книги из API
     useEffect(() => {
         console.log('EFFECT')
 
         fetch('https://localhost:7218/api/books')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Ошибка загрузки книг: ${response.status} ${response.statusText}`
+                    )
+                }
+
+                return response.json()
+            })
             .then(data => {
                 console.log('API DATA:', data)
                 setBooks(data)
+            })
+            .catch(error => {
+                setError(error.message)
+            })
+            .finally(() => {
+                setLoading(false)
             })
     }, [])
 
@@ -38,21 +55,39 @@ function App() {
     }
 
     const addBook = async () => {
-        const response = await fetch('https://localhost:7218/api/books', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                title: formData.title,
-                author: formData.author
+        setAdding(true)
+        setError(null)
+
+        try {
+            const response = await fetch('https://localhost:7218/api/books', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: formData.title,
+                    author: formData.author
+                })
             })
-        })
 
-        const createdBook = await response.json()
+            if (!response.ok) {
+                throw new Error(
+                    `Ошибка добавления книги: ${response.status} ${response.statusText}`
+                )
+            }
 
-        setBooks([...books, createdBook])
-        
+            const createdBook = await response.json()
+
+            setBooks(prevBooks => [...prevBooks, createdBook])
+        } catch (error) {
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : 'Неизвестная ошибка'
+            )
+        } finally {
+            setAdding(false)
+        }
     }
 
     const deleteBook = async (id: number) => {
@@ -121,7 +156,6 @@ function App() {
         })
     }
 
-
     function editBook(book: Book) {
         setEditingBookId(book.id)
 
@@ -130,10 +164,6 @@ function App() {
             author: book.author,
         })
     }
-
-    
-
-    
 
     function cancelEdit() {
         setEditingBookId(null)
@@ -151,6 +181,8 @@ function App() {
             <BookForm
                 formData={formData}
                 isEditing={editingBookId !== null}
+                adding={adding}
+                error={error}
                 onChange={handleChange}
                 onSubmit={
                     editingBookId !== null
@@ -160,11 +192,17 @@ function App() {
                 onCancel={cancelEdit}
             />
 
-            <BookList
-                books={books}
-                onDelete={deleteBook}
-                onEdit={editBook}
-            />
+            {loading && <p>Загрузка...</p>}
+
+            {error && <p>{error}</p>}
+
+            {!loading && !error && (
+                <BookList
+                    books={books}
+                    onDelete={deleteBook}
+                    onEdit={editBook}
+                />
+            )}
         </>
     )
 }

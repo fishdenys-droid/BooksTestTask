@@ -6,6 +6,8 @@
 type BookFormProps = {
     formData: BookFormData
     isEditing: boolean
+    adding: boolean
+    error: string | null
     onChange: (field: 'title' | 'author', value: string) => void
     onSubmit: () => void
     onCancel: () => void
@@ -14,6 +16,8 @@ type BookFormProps = {
 function BookForm({
     formData,
     isEditing,
+    adding,
+    error,
     onChange,
     onSubmit,
     onCancel,
@@ -32,8 +36,10 @@ function BookForm({
                 placeholder="Author"
             />
 
+            {error && <p>{error}</p>}
+
             <button onClick={onSubmit}>
-                {isEditing ? 'Save' : 'Add book'}
+                {adding ? 'Adding...' : isEditing ? 'Save' : 'Add book'}
             </button>
 
             {isEditing && (
